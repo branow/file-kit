@@ -14,6 +14,7 @@ public enum VolumeUnit {
 
     /**
      * The method converts the gotten value to another unit of measurement.
+     * Returns the integer value of the result.
      * @param value value that will be converted
      * @param from the volume unit of measurement of gotten value
      * @param to the volume unit of measurement of returned value
@@ -21,6 +22,18 @@ public enum VolumeUnit {
      * */
     public static long convert(long value, VolumeUnit from, VolumeUnit to) {
         return value * to.value / from.value;
+    }
+
+    /**
+     * The method converts the gotten value to another unit of measurement.
+     * Returns the decimal value of the result.
+     * @param value value that will be converted
+     * @param from the volume unit of measurement of gotten value
+     * @param to the volume unit of measurement of returned value
+     * @return value in other units of measurement
+     * */
+    public static double convertDecimal(long value, VolumeUnit from, VolumeUnit to) {
+        return ((double) value * to.value) / from.value;
     }
 
     private final long value;
