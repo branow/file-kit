@@ -21,7 +21,7 @@ public enum VolumeUnit {
      * @return value in other units of measurement
      * */
     public static long convert(long value, VolumeUnit from, VolumeUnit to) {
-        return value * to.value / from.value;
+        return value * from.value / to.value;
     }
 
     /**
@@ -33,7 +33,7 @@ public enum VolumeUnit {
      * @return value in other units of measurement
      * */
     public static double convertDecimal(long value, VolumeUnit from, VolumeUnit to) {
-        return ((double) value * to.value) / from.value;
+        return ((double) value * from.value) / to.value;
     }
 
     private final long value;
