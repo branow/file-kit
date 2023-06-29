@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
+/**
+ * An abstraction of any computer file.
+ * The class is useful to work with only existing file paths.
+ * Object of FileEntity can be converted to a {@link File} or {@link Path} instance.
+ * */
 public class FileEntity {
 
     private final File file;
