@@ -11,8 +11,9 @@ import java.util.Objects;
  * An abstraction of any computer file.
  * The class is useful to work with only existing file paths.
  * Object of FileEntity can be converted to a {@link File} or {@link Path} instance.
+ * @see SystemEntity
  * */
-public class FileEntity {
+public class FileEntity implements SystemEntity {
 
     private File file;
 
@@ -48,6 +49,7 @@ public class FileEntity {
      * @throws RuntimeIOException if IOException is thrown;
      * @see FileEntity#rename(String, String)
      * */
+    @Override
     public void rename(String newName) {
         rename(newName, extension());
     }
@@ -92,6 +94,7 @@ public class FileEntity {
      * @throws RuntimeIOException if IOException is thrown;
      * @see Files#size(Path)
      * */
+    @Override
     public long size() {
         try {
             return Files.size(file.toPath());
@@ -101,11 +104,13 @@ public class FileEntity {
     }
 
     /**
-     * The method return the size of this file (in bytes).
+     * The method return the size of this file in gotten inits
      * The method calls the {@code size()} method of class {@link Files}.
+     * @param unit volume units in which the size is returned
      * @throws RuntimeIOException if IOException is thrown;
      * @see FileEntity#size()
      * */
+    @Override
     public long size(VolumeUnit unit) {
         return VolumeUnit.convert(size(), VolumeUnit.BYTE, unit);
     }
@@ -138,6 +143,7 @@ public class FileEntity {
      * The method returns {@link File} instance of this file
      * @return {@link File} class instance
      * */
+    @Override
     public File file() {
         return file;
     }
@@ -146,6 +152,7 @@ public class FileEntity {
      * The method returns {@link Path} instance of this file
      * @return {@link Path} class instance
      * */
+    @Override
     public Path path() {
         return file.toPath();
     }
