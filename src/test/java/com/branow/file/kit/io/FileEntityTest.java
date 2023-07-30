@@ -112,6 +112,30 @@ public class FileEntityTest {
     }
 
     @ParameterizedTest
+    @MethodSource("provideRenameTheSameName")
+    public void renameTheSameName(String path, String newName, String newExtension) {
+        createFileIfNotExists(path);
+        FileEntity file = new FileEntity(path);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> file.rename(newName, newExtension));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRename")
+    public void rename(String path, String newName, String newExtension) {
+        createFileIfNotExists(path);
+        Path src = Path.of(path);
+        Path target = Path.of(src.getParent().toString(), newName + "." + newExtension);
+
+        FileEntity file = new FileEntity(path);
+        file.rename(newName, newExtension);
+
+        Assertions.assertTrue(Files.notExists(src));
+        Assertions.assertTrue(Files.exists(target));
+        Assertions.assertEquals(target, file.path());
+    }
+
+
+    @ParameterizedTest
     @MethodSource("provideSize")
     public void size(String path, long size, VolumeUnit unit) {
         createFileIfNotExists(path);
@@ -178,6 +202,23 @@ public class FileEntityTest {
         return Stream.of(
                 Arguments.of("renameFileWithSuchNameAlreadyExistsCopy", "txt"),
                 Arguments.of("renameFileWithSuchNameAlreadyExists2", "txt")
+        );
+    }
+
+    private static Stream<Arguments> provideRenameTheSameName() {
+        return Stream.of(
+                Arguments.of(resourceFolder + "/FILE.BIN", "FILE", "bin"),
+                Arguments.of(resourceFolder + "/FILE.BIN", "file", "BIN"),
+                Arguments.of(resourceFolder + "/FILE.BIN", "FILE", "BIN")
+        );
+    }
+
+    private static Stream<Arguments> provideRename() {
+        return Stream.of(
+                Arguments.of(resourceFolder + "/file_1.txt", "file_2", "txt"),
+                Arguments.of(resourceFolder + "/FILE.BIN", "new file", "BIN"),
+                Arguments.of(resourceFolder + "/.jpg", ".", "png"),
+                Arguments.of(resourceFolder + "/file.", "", "gitignore")
         );
     }
 

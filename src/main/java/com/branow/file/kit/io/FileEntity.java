@@ -14,7 +14,7 @@ import java.util.Objects;
  * */
 public class FileEntity {
 
-    private final File file;
+    private File file;
 
     /**
      * @throws IllegalArgumentException if the file doesn't exist
@@ -59,22 +59,30 @@ public class FileEntity {
      * @param newExtension new extension of the file
      * @throws RuntimeIOException if IOException is thrown;
      * @throws NullPointerException if {@code newName} or {@code newExtension} is null;
-     * @throws RuntimeIOException if {@code newExtension} is empty;
+     * @throws IllegalArgumentException if {@code newExtension} is empty or
+     * {@code newName} and {@code newExtension} are the same as current (ignore case);
      * @see Files#move(Path, Path, CopyOption...)
      * */
     public void rename(String newName, String newExtension) {
         if (newName == null) throw new NullPointerException("new name is null");
         if (newExtension == null) throw new NullPointerException("new extension is null");
         if (newExtension.isEmpty()) throw new IllegalArgumentException("new extension is empty");
+
         Path src = path();
+        String newFullName = newName + "." + newExtension;
+        String currentName = src.getFileName().toString();
+
+        if (currentName.equalsIgnoreCase(newFullName))
+            throw new IllegalArgumentException("new name is the same as current: current - " + currentName + ", new - " + newFullName);
+
         String targetDir = src.getParent().toString();
-        String target = targetDir + File.separator + newName + "." + newExtension;
-        Path path = Path.of(target);
+        Path path = Path.of(targetDir, newFullName);
         try {
             Files.move(src, path);
         } catch (IOException e) {
             throw new RuntimeIOException(e);
         }
+        file = path.toFile();
     }
 
 
