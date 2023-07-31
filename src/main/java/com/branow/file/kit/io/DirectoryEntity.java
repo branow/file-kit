@@ -108,15 +108,19 @@ public class DirectoryEntity implements SystemEntity {
     }
 
     /**
-     * The method return list of files of this directory
+     * The method return unmodifiable list of files of this directory
      * @return list of files of this directory
      * */
     public List<Path> children() {
-        return childFiles().stream().map(File::toPath).toList();
+        try (Stream<Path> stream = Files.list(path())) {
+            return stream.toList();
+        } catch (IOException e) {
+            throw new RuntimeIOException(e);
+        }
     }
 
     /**
-     * The method return list of files of this directory wrapped into SystemEntity.
+     * The method return unmodifiable list of files of this directory wrapped into SystemEntity.
      * Directories are changed into to {@link DirectoryEntity}, files to {@link FileEntity}.
      * @return list of files of this directory
      * */
@@ -130,16 +134,11 @@ public class DirectoryEntity implements SystemEntity {
     }
 
     /**
-     * The method returns list of files of this directory
+     * The method returns unmodifiable list of files of this directory
      * @return list of files of this directory
      * */
     public List<File> childFiles() {
-        String[] files = file.list();
-        if (files == null)
-            return new ArrayList<>();
-        else
-            return Arrays.stream(files)
-                    .map(f -> new File(file.toString() + File.separator + f)).toList();
+        return children().stream().map(Path::toFile).toList();
     }
 
 
@@ -195,7 +194,7 @@ public class DirectoryEntity implements SystemEntity {
         try (Stream<Path> stream = Files.list(src)) {
             List<Path> children = stream.toList();
             if (!children.isEmpty()) {
-                for (Path child: children()) {
+                for (Path child: children) {
                     Path childTarget = Path.of(target.toString(), child.getFileName().toString());
                     if (Files.isDirectory(child)) {
                         move(child, target);
