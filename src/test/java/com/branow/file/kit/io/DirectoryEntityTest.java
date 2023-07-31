@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -187,17 +188,24 @@ public class DirectoryEntityTest {
 
     @ParameterizedTest
     @MethodSource("provideRename")
-    public void rename(String dir, String newName) {
+    public void rename(String dir, String newName, Set<String> children) {
         createDirectoryIfNotExists(dir);
         Path src = Path.of(dir);
         Path target = Path.of(src.getParent().toString(), newName);
 
+        for (String child: children) {
+            createFileIfNotExists(dir + File.separator + child);
+        }
+
         DirectoryEntity de = new DirectoryEntity(src);
         de.rename(newName);
+        Set<String> actualChildren = de.children().stream()
+                .map(e -> e.getFileName().toString()).collect(Collectors.toSet());
 
         Assertions.assertTrue(Files.notExists(src));
         Assertions.assertTrue(Files.exists(target));
         Assertions.assertEquals(target, de.path());
+        Assertions.assertEquals(children, actualChildren);
     }
 
 
@@ -285,10 +293,10 @@ public class DirectoryEntityTest {
 
     private static Stream<Arguments> provideRename() {
         return Stream.of(
-                Arguments.of(resourceFolder + File.separator + "folder", "folder2"),
-                Arguments.of(resourceFolder + File.separator + "folder", "folder--"),
-                Arguments.of(resourceFolder + File.separator + "folder", "img.jpg"),
-                Arguments.of(resourceFolder + File.separator + "folder", "Java World_")
+                Arguments.of(resourceFolder + File.separator + "folder", "folder2", Set.of()),
+                Arguments.of(resourceFolder + File.separator + "folder", "folder--", Set.of("photo.jpg")),
+                Arguments.of(resourceFolder + File.separator + "folder", "img.jpg", Set.of("text.txt", "data.bin")),
+                Arguments.of(resourceFolder + File.separator + "folder", "Java World_", Set.of("file", "file1", "file2"))
         );
     }
 
