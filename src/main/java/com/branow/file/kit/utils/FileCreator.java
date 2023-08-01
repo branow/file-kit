@@ -54,23 +54,15 @@ public class FileCreator {
     private final boolean mayHasNonexistentParent;
     private final boolean mayBeExistent;
 
-    /**
-     * @param isDirectory if it's {@code true}, it creates a directory, if {@code false} - a usual file
-     * @param canHasNonexistentParent if it's {@code true}, it creates all nonexistent parents if they are.
-     *                                If it's {@code false} and there are nonexistent parents, the exception
-     *                                is thrown
-     * @param canBeExistent if it's {@code true}, it doesn't create new file or throw exception if the file
-     *                      of gotten path already exists.
-     * */
-    public FileCreator(boolean isDirectory, boolean canHasNonexistentParent, boolean canBeExistent) {
+    private FileCreator(boolean isDirectory, boolean canHasNonexistentParent, boolean canBeExistent) {
         this.isDirectory = isDirectory;
         this.mayHasNonexistentParent = canHasNonexistentParent;
         this.mayBeExistent = canBeExistent;
     }
 
     /**
-     * The method create a file by the gotten path according to gotten option throw the {@code constructor}.
-     * The method use method of class {@link Files}.
+     * The method creates a file by the gotten path according to gotten options throw the
+     * {@link FileCreator#of(CreateOption...)}. The method uses the methods of class {@link Files}.
      * @param path the path to the file to create
      * @see Files#createFile(Path, FileAttribute[])
      * @see Files#createDirectory(Path, FileAttribute[])
