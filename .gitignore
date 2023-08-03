@@ -1,7 +1,4 @@
 target/
 out
-### IntelliJ IDEA ###
+.todo
 .idea
-*.iws
-*.iml
-*.ipr
