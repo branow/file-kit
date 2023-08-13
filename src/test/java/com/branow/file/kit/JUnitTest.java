@@ -23,7 +23,7 @@ public class JUnitTest {
         try (Stream<Path> stream = Files.list(resourceFolder)) {
             List<Path> children = stream.toList();
             for (Path child : children) {
-                delete(child);git
+                delete(child);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -79,7 +79,6 @@ public class JUnitTest {
             throw new RuntimeException(e);
         }
     }
-
     private static void deleteCompletely(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             try (Stream<Path> stream = Files.list(path)) {
