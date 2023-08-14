@@ -1,133 +1,152 @@
 package com.branow.file.kit.io;
 
+import com.branow.file.kit.utils.FileIOUtils;
+
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 /**
- * An abstraction of any existing computer file
- * that let read and write bytes.
- * The class extends {@link FileEntity}.
- * */
+ * An abstraction of any existing computer file that let read and write bytes.
+ * The class extends {@link FileEntity}. All class methods uses methods of {@link FileIOUtils}.
+ */
 public class ByteFile extends FileEntity {
 
     /**
-     * The constructor base on the constructor
-     * {@link FileEntity#FileEntity(File)}
-     * */
+     * @see FileEntity#FileEntity(File)
+     */
     public ByteFile(File file) {
         super(file);
     }
 
     /**
-     * The constructor base on the constructor
-     * {@link FileEntity#FileEntity(File)}
-     * */
+     * @see FileEntity#FileEntity(String)
+     */
     public ByteFile(String path) {
         super(path);
     }
 
     /**
-     * The constructor base on the constructor
-     * {@link FileEntity#FileEntity(File)}
-     * */
+     * @see FileEntity#FileEntity(Path)
+     */
     public ByteFile(Path path) {
         super(path);
     }
 
 
     /**
-     * the method read all bytes from file and return it
-     * @return an array of bytes read from the file
-     * @see ByteFile#readBytes(int, int)
-     * */
+     * Reads all bytes from the file and returns them.
+     *
+     * @return The byte array read from the file.
+     * @see FileIOUtils#readByteBuffer(Path)
+     */
     public byte[] readBytes() {
-        return readBytes(0, (int) size());
+        return FileIOUtils.readByteBuffer(path()).array();
     }
 
     /**
-     * the method read bytes from file and return it
-     * @param length maximum number of bytes to read
-     * @return an array of bytes read from the file
-     * @see ByteFile#readBytes(int, int)
-     * */
+     * Reads bytes from the file and returns them.
+     *
+     * @param length The maximum number of bytes to read.
+     * @return The byte array read from the file.
+     * @see FileIOUtils#readByteBuffer(Path, int)
+     */
     public byte[] readBytes(int length) {
-        return readBytes(0, length);
+        return FileIOUtils.readByteBuffer(path(), length).array();
     }
 
     /**
-     * the method read bytes from file and return it
-     * @param off offset at which to start storing bytes
-     * @param length maximum number of bytes to read
-     * @return an array of bytes read from the file
-     * @throws RuntimeIOException if IOException is thrown
-     * @see BufferedInputStream#skipNBytes(long) 
-     * @see BufferedInputStream#readNBytes(byte[], int, int)
-     * */
-    public byte[] readBytes(int off, int length) {
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file()))) {
-            bis.skipNBytes(off);
-            return bis.readNBytes(length);
-        } catch (IOException e) {
-            throw new RuntimeIOException(e);
-        }
+     * Reads bytes from the file and returns them.
+     *
+     * @param off    The offset at which it starts reading bytes.
+     * @return The byte array read from the file.
+     * @see FileIOUtils#readByteBuffer(Path, long)
+     */
+    public byte[] readBytes(long off) {
+        return FileIOUtils.readByteBuffer(path(), off).array();
+    }
+
+    /**
+     * Reads bytes from the file and returns them.
+     *
+     * @param off    The offset at which it starts reading bytes.
+     * @param length The maximum number of bytes to read.
+     * @return The byte array read from the file.
+     * @see FileIOUtils#readByteBuffer(Path, long, int)
+     */
+    public byte[] readBytes(long off, int length) {
+        return FileIOUtils.readByteBuffer(path(), off, length).array();
     }
 
 
+
     /**
-     * the method writes all transmitted bytes to the file
-     * @param bytes a bytes array that will be written into the file
-     * @see ByteFile#writeBytes(byte[], int)
-     * */
+     * Writes all the given bytes to this file skipping the given number of bytes.
+     * All previous bytes of that file before the position equaling {@code bytes} length
+     * are removed.
+     *
+     * @param bytes The bytes array that is written into the file.
+     * @see FileIOUtils#write(Path, ByteBuffer)
+     */
     public void writeBytes(byte[] bytes) {
-        writeBytes(bytes, 0);
+        FileIOUtils.write(path(), ByteBuffer.wrap(bytes));
     }
 
     /**
-     * the method writes or appends all transmitted bytes to the file
-     * @param bytes a bytes array that will be written into the file
-     * @param off the start offset in the data
-     * @throws RuntimeIOException if IOException is thrown.
-     * @see BufferedOutputStream#write(byte[])
-     * */
-    public void writeBytes(byte[] bytes, int off) {
-        byte[] write = new byte[off + bytes.length];
-        byte[] read = readBytes(off);
-        System.arraycopy(read, 0, write, 0, read.length);
-        System.arraycopy(bytes, 0, write, off, bytes.length);
-        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file()))) {
-            bos.write(write);
-        } catch (IOException e) {
-            throw new RuntimeIOException(e);
-        }
+     * Writes all the given bytes to this file skipping the given number of bytes.
+     * All previous bytes of that file after {@code off} position and before
+     * the position equaling {@code off} position plus {@code bytes} length are removed.
+     *
+     * @param bytes The bytes array that is written into the file.
+     * @param off   The offset at which it starts writing bytes.
+     * @see FileIOUtils#write(Path, ByteBuffer, long)
+     */
+    public void writeBytes(byte[] bytes, long off) {
+        FileIOUtils.write(path(), ByteBuffer.wrap(bytes), off);
+    }
+
+    /**
+     * Overwrites all the given bytes to this file skipping the given number of bytes.
+     * All previous bytes of this file are removed.
+     *
+     * @param bytes The bytes array that is overwritten into the file.
+     * @see FileIOUtils#overwrite(Path, ByteBuffer)
+     */
+    public void overwriteBytes(byte[] bytes) {
+        FileIOUtils.overwrite(path(), ByteBuffer.wrap(bytes));
+    }
+
+    /**
+     * Overwrites all the given bytes to this file skipping the given number of bytes.
+     * All previous bytes of that file after {@code off} position are removed.
+     *
+     * @param bytes The bytes array that is overwritten into the file.
+     * @param off   The offset at which it starts overwriting bytes.
+     * @see FileIOUtils#overwrite(Path, ByteBuffer, long)
+     */
+    public void overwriteBytes(byte[] bytes, long off) {
+        FileIOUtils.overwrite(path(), ByteBuffer.wrap(bytes), off);
     }
 
 
     /**
-     * the method appends all transmitted bytes to the file
-     * @param bytes a bytes array that will be written into the file
-     * @see ByteFile#appendBytes(byte[], int)
-     * */
+     * Appends all the given bytes to the end of this file.
+     *
+     * @param bytes The bytes array that is appending to the file.
+     * @see FileIOUtils#append(Path, ByteBuffer)
+     */
     public void appendBytes(byte[] bytes) {
-        writeBytes(bytes, 0);
+        FileIOUtils.overwrite(path(), ByteBuffer.wrap(bytes));
     }
 
     /**
-     * the method appends all transmitted bytes to the file
-     * @param bytes a bytes array that will be written into the file
-     * @param off the start offset in the data
-     * @see BufferedOutputStream#write(byte[])
-     * */
-    public void appendBytes(byte[] bytes, int off) {
-        byte[] read = readBytes();
-        byte[] write = new byte[read.length + bytes.length];
-        System.arraycopy(read, 0, write, 0, off);
-        System.arraycopy(bytes, 0, write, off, bytes.length);
-        System.arraycopy(read, off, write, off + bytes.length, read.length - off);
-        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file()))) {
-            bos.write(write);
-        } catch (IOException e) {
-            throw new RuntimeIOException(e);
-        }
+     * Appends all the given bytes to this file skipping the given number of bytes.
+     *
+     * @param bytes The bytes array that is appending to the file.
+     * @param off   The offset at which it starts appending bytes.
+     * @see FileIOUtils#append(Path, ByteBuffer, long)
+     */
+    public void appendBytes(byte[] bytes, long off) {
+        FileIOUtils.overwrite(path(), ByteBuffer.wrap(bytes), off);
     }
 }
