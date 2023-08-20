@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.branow</groupId>
             <artifactId>java-outfits</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
