@@ -37,7 +37,7 @@
                 <configuration>
                     <groupId>com.branow</groupId>
                     <artifactId>file-kit</artifactId>
-                    <version>0.3</version>
+                    <version>1</version>
                     <packaging>jar</packaging>
                     <file>${basedir}/out/artifacts/file_kit_jar/file-kit.jar</file>
                     <generatePom>true</generatePom>
