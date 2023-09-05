@@ -25,29 +25,19 @@ import java.util.stream.StreamSupport;
 public abstract class AbstractTextFileDao<T, Id> implements Dao<T, Id> {
 
     protected final TextFile file;
-    protected final String elementSeparator;
     protected final Function<T, Id> functionGetId;
-    protected final StringConverter<T> converter;
 
     /**
-     * @param file             The file to read and writes dao elements.
-     * @param elementSeparator The string separator to separate element in file.
-     * @param converter        The converter to transform element string to java object.
-     * @param functionGetId    The function that allows to get id (identifier) of any dao element.
+     * @param file          The file to read and writes dao elements.
+     * @param functionGetId The function that allows to get id (identifier) of any dao element.
      * @throws NullPointerException     if at least one of the parameters is null.
      * @throws IllegalArgumentException if the given {@code elementSeparator} is empty
      */
-    public AbstractTextFileDao(TextFile file, String elementSeparator, StringConverter<T> converter, Function<T, Id> functionGetId) {
+    public AbstractTextFileDao(TextFile file, Function<T, Id> functionGetId) {
         Objects.requireNonNull(file, "The given file is null");
         Objects.requireNonNull(functionGetId, "The given functionGetId is null");
-        Objects.requireNonNull(elementSeparator, "The given elementSeparator is null");
-        Objects.requireNonNull(converter, "The given converter is null");
-        if (elementSeparator.isEmpty())
-            throw new IllegalArgumentException("The given elementSeparator is empty");
         this.file = file;
         this.functionGetId = functionGetId;
-        this.elementSeparator = elementSeparator;
-        this.converter = converter;
     }
 
     /**
@@ -58,25 +48,12 @@ public abstract class AbstractTextFileDao<T, Id> implements Dao<T, Id> {
     }
 
     /**
-     * @return The element separator.
-     */
-    public String getElementSeparator() {
-        return elementSeparator;
-    }
-
-    /**
      * @return The function to get id from the element.
      */
     public Function<T, Id> getFunctionGetId() {
         return functionGetId;
     }
 
-    /**
-     * @return The converter that transforms string to dao element and vice versa.
-     */
-    public StringConverter<T> getConverter() {
-        return converter;
-    }
 
     /**
      * Returns all the elements read from the file.
@@ -255,8 +232,7 @@ public abstract class AbstractTextFileDao<T, Id> implements Dao<T, Id> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractTextFileDao<?, ?> that = (AbstractTextFileDao<?, ?>) o;
-        return Objects.equals(file, that.file) && Objects.equals(elementSeparator, that.elementSeparator)
-                && Objects.equals(functionGetId, that.functionGetId) && Objects.equals(converter, that.converter);
+        return Objects.equals(file, that.file) && Objects.equals(functionGetId, that.functionGetId);
     }
 
     /**
@@ -267,7 +243,7 @@ public abstract class AbstractTextFileDao<T, Id> implements Dao<T, Id> {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(file, elementSeparator, functionGetId, converter);
+        return Objects.hash(file, functionGetId);
     }
 
     /**
@@ -278,17 +254,13 @@ public abstract class AbstractTextFileDao<T, Id> implements Dao<T, Id> {
         return this.getClass().getSimpleName() + "[" + file + "]";
     }
 
-
     /**
-     * Writes all given elements to the file, all previous are removed.
+     * Converts the given collection of object to the string representation.
      *
-     * @param collection Elements to overwrite into the file.
+     * @param collection The given collection to transform.
+     * @return The string representation of the given collection.
      */
-    protected void overwrite(Collection<T> collection) {
-        String data = collection.stream().map(converter::toString)
-                .collect(Collectors.joining(elementSeparator));
-        file.overwriteString(data);
-    }
+    protected abstract String toString(Collection<T> collection);
 
     /**
      * Returns the iterator of all dao elements read from the file.
@@ -321,5 +293,7 @@ public abstract class AbstractTextFileDao<T, Id> implements Dao<T, Id> {
         }
     }
 
-
+    private void overwrite(Collection<T> collection) {
+        file.overwriteString(toString(collection));
+    }
 }
