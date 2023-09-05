@@ -124,8 +124,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
         if (objects.isEmpty()) {
             actual = List.of();
         } else {
-            actual = Arrays.stream(new String(read(path)).split(dao.elementSeparator))
-                    .map(converter()::fromString).toList();
+            actual = new ArrayList<>();
+            dao.iterator().forEachRemaining(actual::add);
         }
 
 
@@ -163,8 +163,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
             else
                 return e;
         }).toList();
-        List<ObjectDTO> actual = Arrays.stream(new String(read(path)).split(dao.elementSeparator))
-                .map(converter()::fromString).toList();
+        List<ObjectDTO> actual = new ArrayList<>();
+        dao.iterator().forEachRemaining(actual::add);
         Assertions.assertEquals(expected, actual);
     }
 
@@ -181,8 +181,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
         String data = init.stream().map(ObjectDTO::toString).collect(Collectors.joining("\n"));
         FileIOUtils.write(path, data, StandardCharsets.UTF_8);
 
-        List<ObjectDTO> actual = Arrays.stream(new String(read(path)).split(dao.elementSeparator))
-                .map(converter()::fromString).toList();
+        List<ObjectDTO> actual = new ArrayList<>();
+        dao.iterator().forEachRemaining(actual::add);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> dao.update(update));
         Assertions.assertEquals(init, actual);
@@ -205,8 +205,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
             Optional<ObjectDTO> op = objects.stream().filter(o -> o.getKey().equals(e.getKey())).findAny();
             return op.orElse(e);
         }).toList();
-        List<ObjectDTO> actual = Arrays.stream(new String(read(path)).split(dao.elementSeparator))
-                .map(converter()::fromString).toList();
+        List<ObjectDTO> actual = new ArrayList<>();
+        dao.iterator().forEachRemaining(actual::add);
         Assertions.assertEquals(expected, actual);
     }
 
@@ -227,8 +227,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
             if (condition.test(e))
                 update.accept(e);
         }).toList();
-        List<ObjectDTO> actual = Arrays.stream(new String(read(path)).split(dao.elementSeparator))
-                .map(converter()::fromString).toList();
+        List<ObjectDTO> actual = new ArrayList<>();
+        dao.iterator().forEachRemaining(actual::add);
         Assertions.assertEquals(expected, actual);
     }
 
@@ -247,8 +247,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
         dao.remove(object.getKey());
 
         List<ObjectDTO> expected = initial.stream().filter(e -> !e.getKey().equals(object.getKey())).toList();
-        List<ObjectDTO> actual = Arrays.stream(new String(read(path)).split(dao.elementSeparator))
-                .map(converter()::fromString).toList();
+        List<ObjectDTO> actual = new ArrayList<>();
+        dao.iterator().forEachRemaining(actual::add);
         Assertions.assertEquals(expected, actual);
     }
 
@@ -271,8 +271,8 @@ public abstract class AbstractTextFileDaoTest extends JUnitTest {
         if (read.isEmpty()) {
             actual = List.of();
         } else {
-            actual = Arrays.stream(read.split(dao.elementSeparator))
-                    .map(converter()::fromString).toList();
+            actual = new ArrayList<>();
+            dao.iterator().forEachRemaining(actual::add);
         }
         Assertions.assertEquals(expected, actual);
     }
