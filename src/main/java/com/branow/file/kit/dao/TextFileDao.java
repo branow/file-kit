@@ -2,7 +2,7 @@ package com.branow.file.kit.dao;
 
 import com.branow.file.kit.io.TextFile;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -19,16 +19,25 @@ import java.util.stream.Stream;
  */
 public class TextFileDao<T, Id> extends AbstractTextFileDao<T, Id> {
 
+    private final StringConverter<Collection<T>> converter;
+
     /**
-     * @param file             The file to read and writes dao elements.
-     * @param elementSeparator The string separator to separate element in file.
-     * @param converter        The converter to transform element string to java object.
-     * @param functionGetId    The function that allows to get id (identifier) of any dao element.
+     * @param file          The file to read and writes dao elements.
+     * @param converter     The converter to transform element string to collection of elements.
+     * @param functionGetId The function that allows to get id (identifier) of any dao element.
      * @throws NullPointerException     if at least one of the parameters is null.
      * @throws IllegalArgumentException if the given {@code elementSeparator} is empty
      */
-    public TextFileDao(TextFile file, String elementSeparator, StringConverter<T> converter, Function<T, Id> functionGetId) {
-        super(file, elementSeparator, converter, functionGetId);
+    public TextFileDao(TextFile file, StringConverter<Collection<T>> converter, Function<T, Id> functionGetId) {
+        super(file, functionGetId);
+        this.converter = converter;
+    }
+
+    /**
+     * @return The converter that transforms string to collection of elements and vice versa.
+     */
+    public StringConverter<Collection<T>> getConverter() {
+        return converter;
     }
 
     /**
@@ -43,7 +52,18 @@ public class TextFileDao<T, Id> extends AbstractTextFileDao<T, Id> {
             Stream<T> stream = Stream.of();
             return stream.iterator();
         }
-        return Arrays.stream(list.split(elementSeparator)).map(converter::fromString).iterator();
+        return converter.fromString(list).iterator();
+    }
+
+    /**
+     * Converts the given collection of object to the string representation.
+     *
+     * @param collection The given collection to transform.
+     * @return The string representation of the given collection.
+     */
+    @Override
+    protected String toString(Collection<T> collection) {
+        return converter.toString(collection);
     }
 
     /**

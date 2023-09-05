@@ -20,23 +20,47 @@ import java.util.function.Function;
  */
 public class TextFileStreamDao<T, Id> extends AbstractTextFileDao<T, Id> {
 
+    protected final StringCollectionConverter<T> converter;
+
     /**
-     * @param file             The file to read and writes dao elements.
-     * @param elementSeparator The string separator to separate element in file.
-     * @param converter        The converter to transform element string to java object.
-     * @param functionGetId    The function that allows to get id (identifier) of any dao element.
+     * @param file          The file to read and writes dao elements.
+     * @param converter     The converter to transform element string to collection of elements.
+     * @param functionGetId The function that allows to get id (identifier) of any dao element.
      * @throws NullPointerException     if at least one of the parameters is null.
      * @throws IllegalArgumentException if the given {@code elementSeparator} is empty
      */
-    public TextFileStreamDao(TextFile file, String elementSeparator, StringConverter<T> converter, Function<T, Id> functionGetId) {
-        super(file, elementSeparator, converter, functionGetId);
+    public TextFileStreamDao(TextFile file, StringCollectionConverter<T> converter, Function<T, Id> functionGetId) {
+        super(file, functionGetId);
+        this.converter = converter;
     }
 
+    /**
+     * @return The converter that transforms string to collection of elements and vice versa.
+     */
+    public StringCollectionConverter<T> getConverter() {
+        return converter;
+    }
+
+    /**
+     * Returns the iterator of all dao elements read from the file.
+     *
+     * @return The iterator of all dao elements.
+     */
     @Override
     public Iterator<T> iterator() {
         return new ElementIterator<>(file);
     }
 
+    /**
+     * Converts the given collection of object to the string representation.
+     *
+     * @param collection The given collection to transform.
+     * @return The string representation of the given collection.
+     */
+    @Override
+    protected String toString(Collection<T> collection) {
+        return converter.toString(collection);
+    }
 
     /**
      * @return The string representation of this object.
@@ -75,9 +99,9 @@ public class TextFileStreamDao<T, Id> extends AbstractTextFileDao<T, Id> {
             StringBuilder sb = new StringBuilder();
             while (mapper.hasNext()) {
                 sb.append(mapper.next().toString(mapper.getCharset()));
-                if (sb.toString().endsWith(elementSeparator)) {
-                    int index = sb.indexOf(elementSeparator);
-                    sb.delete(index, index + elementSeparator.length());
+                if (sb.toString().endsWith(converter.elementSeparator)) {
+                    int index = sb.indexOf(converter.elementSeparator);
+                    sb.delete(index, index + converter.elementSeparator.length());
                     break;
                 }
             }
